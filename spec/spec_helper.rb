@@ -105,7 +105,7 @@ def reset_class(class_name, options)
 
     validates_attachment :image, :content_type => { :content_type => "image/png" }
 
-    process_in_background :image, options if options[:with_processed]
+    process_paperclip_in_background :image, options if options[:with_processed]
 
     after_update :reprocess if options[:with_after_update_callback]
 

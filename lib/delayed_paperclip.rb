@@ -42,7 +42,7 @@ module DelayedPaperclip
 
   module ClassMethods
 
-    def process_in_background(name, options = {})
+    def process_paperclip_in_background(name, options = {})
       # initialize as hash
       paperclip_definitions[name][:delayed] = {}
 

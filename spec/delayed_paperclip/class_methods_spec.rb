@@ -5,13 +5,13 @@ describe DelayedPaperclip::ClassMethods do
     reset_dummy(with_processed: false)
   end
 
-  describe ".process_in_background" do
+  describe ".process_paperclip_in_background" do
     it "is empty to start" do
       Dummy.paperclip_definitions.should == { :image => {} }
     end
 
     it "adds basics to paperclip_definitions" do
-      Dummy.process_in_background(:image)
+      Dummy.process_paperclip_in_background(:image)
       Dummy.paperclip_definitions.should == { :image => {
         :delayed => {
           :priority => 0,
@@ -24,7 +24,7 @@ describe DelayedPaperclip::ClassMethods do
     end
 
     it "allows to set queue name" do
-      Dummy.process_in_background(:image, :queue => "custom")
+      Dummy.process_paperclip_in_background(:image, :queue => "custom")
       expect(Dummy.paperclip_definitions).to eq({ :image => {
         :delayed => {
           :priority => 0,
@@ -38,7 +38,7 @@ describe DelayedPaperclip::ClassMethods do
 
     context "with processing_image_url" do
       before :each do
-        Dummy.process_in_background(:image, processing_image_url: "/processing/url")
+        Dummy.process_paperclip_in_background(:image, processing_image_url: "/processing/url")
       end
 
       it "incorporates processing url" do
@@ -57,7 +57,7 @@ describe DelayedPaperclip::ClassMethods do
     context "inherits only_process options" do
       before :each do
         reset_class("Dummy", paperclip: { only_process: [:small, :large] } )
-        Dummy.process_in_background(:image)
+        Dummy.process_paperclip_in_background(:image)
       end
 
       it "incorporates processing url" do
@@ -78,7 +78,7 @@ describe DelayedPaperclip::ClassMethods do
       context "commit" do
         it "sets after_commit callback" do
           Dummy.expects(:after_commit).with(:enqueue_delayed_processing)
-          Dummy.process_in_background(:image)
+          Dummy.process_paperclip_in_background(:image)
         end
       end
 
@@ -87,7 +87,7 @@ describe DelayedPaperclip::ClassMethods do
           Dummy.stubs(:respond_to?).with(:attachment_definitions).returns(true)
           Dummy.stubs(:respond_to?).with(:after_commit).returns(false)
           Dummy.expects(:after_save).with(:enqueue_delayed_processing)
-          Dummy.process_in_background(:image)
+          Dummy.process_paperclip_in_background(:image)
         end
       end
     end

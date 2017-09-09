@@ -43,7 +43,7 @@ class User < ActiveRecord::Base
                                        thumb: "100x100>"
                                      }
 
-  process_in_background :avatar
+  process_paperclip_in_background :avatar
 end
 ```
 
@@ -91,7 +91,7 @@ images currently being processed.
 class User < ActiveRecord::Base
   has_attached_file :avatar
 
-  process_in_background :avatar, processing_image_url: "/images/:style/processing.jpg"
+  process_paperclip_in_background :avatar, processing_image_url: "/images/:style/processing.jpg"
 end
 
 @user = User.new(avatar: File.new(...))
@@ -111,7 +111,7 @@ example to display the original picture while specific formats are being process
 class Item < ActiveRecord::Base
   has_attached_file :photo
 
-  process_in_background :photo, processing_image_url: :processing_image_fallback
+  process_paperclip_in_background :photo, processing_image_url: :processing_image_fallback
 
   def processing_image_fallback
     options = photo.options
@@ -126,7 +126,7 @@ Another option is to provide an object which responds to `call` to `processing_i
 class Item < ActiveRecord::Base
   has_attached_file :photo
 
-  process_in_background :photo, processing_image_url: ->(attachment) {
+  process_paperclip_in_background :photo, processing_image_url: ->(attachment) {
     ActionController::Base.helpers.image_path("processing.gif")
   }
 end
@@ -144,7 +144,7 @@ of the boolean created via migration.
 class User < ActiveRecord::Base
   has_attached_file :avatar
 
-  process_in_background :avatar, url_with_processing: false
+  process_paperclip_in_background :avatar, url_with_processing: false
 end
 
 @user = User.new(avatar: File.new(...))
@@ -168,7 +168,7 @@ styles.
 class User < ActiveRecord::Base
   has_attached_file :avatar, styles: { small: "25x25#", medium: "50x50#" }
 
-  process_in_background :avatar, only_process: [:small]
+  process_paperclip_in_background :avatar, only_process: [:small]
 end
 ```
 
@@ -179,7 +179,7 @@ Like paperclip, you could also supply a lambda function to define
 class User < ActiveRecord::Base
   has_attached_file :avatar, styles: { small: "25x25#", medium: "50x50#" }
 
-  process_in_background :avatar, only_process: lambda { |a| a.instance.small_supported? ? [:small, :large] : [:large] }
+  process_paperclip_in_background :avatar, only_process: lambda { |a| a.instance.small_supported? ? [:small, :large] : [:large] }
 end
 ```
 
@@ -187,13 +187,13 @@ end
 
 You can process some styles in the foreground and some in the background
 by setting `only_process` on both `has_attached_file` and
-`process_in_background`.
+`process_paperclip_in_background`.
 
 ```ruby
 class User < ActiveRecord::Base
   has_attached_file :avatar, styles: { small: "25x25#", medium: "50x50#" }, only_process: [:small]
 
-  process_in_background :avatar, only_process: [:medium]
+  process_paperclip_in_background :avatar, only_process: [:medium]
 end
 ```
 
@@ -207,7 +207,7 @@ reprocess all styles.
 class User < ActiveRecord::Base
   has_attached_file :avatar, styles: { small: "25x25#", medium: "50x50#" }
 
-  process_in_background :avatar
+  process_paperclip_in_background :avatar
 end
 
 @user.avatar.url #=> "/system/images/3/original/IMG_2772.JPG?1267562148"
@@ -223,7 +223,7 @@ You can set it by changing global default options or by:
 class User < ActiveRecord::Base
   has_attached_file :avatar
 
-  process_in_background :avatar, queue: "default"
+  process_paperclip_in_background :avatar, queue: "default"
 end
 ```
 
@@ -231,7 +231,7 @@ Defaults
 --------
 
 Global defaults for all delayed_paperclip instances in your app can be
-defined by changing the DelayedPaperclip.options Hash, this can be useful for setting a default ‘processing image,’ so you won’t have to define it in every `process_in_background` definition.
+defined by changing the DelayedPaperclip.options Hash, this can be useful for setting a default ‘processing image,’ so you won’t have to define it in every `process_paperclip_in_background` definition.
 
 If you’re using Rails you can define a Hash with default options in
 config/application.rb or in any of the config/environments/\*.rb files on `config.delayed_paperclip_defaults`, these will get merged into DelayedPaperclip.options as your Rails app boots. An example:
@@ -265,7 +265,7 @@ like this:
 # ...
 
 has_attached_file :avatar, styles: { thumb: '100x100>' },  processors: [:rotator]
-process_in_background :avatar
+process_paperclip_in_background :avatar
 
 def rotate!
   # ...
